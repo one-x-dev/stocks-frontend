@@ -1,12 +1,11 @@
 <template>
   <v-container>
-    <v-row class="pa-0 ma-0">
-      <v-col class="pa-0 ma-0">
+    <v-row justify="center" class="pa-0 ma-0">
+      <v-col cols="6" class="pa-0 ma-0">
         <v-card>
-          <v-card-title>Поиск</v-card-title>
           <v-card-text>
             <v-row class="pa-0 ma-0">
-              <v-col cols="12" md="4" class="pa-1 ma-0">
+              <v-col cols="12" class="pa-1 ma-0">
                 <v-autocomplete
                   v-model="select"
                   :loading="loading"
@@ -20,14 +19,9 @@
                   hide-details
                 />
               </v-col>
-              <v-col cols="6" md="3" class="pa-1">
-                <datepicker class="datepicker" v-model="startDate" />
-              </v-col>
-              <v-col cols="6" md="3" class="pa-1">
-                <datepicker class="datepicker" v-model="endDate" />
-              </v-col>
-              <v-col cols="12" md="2" align="left" class="ma-0 pa-1">
-                <v-btn color="primary" elevation="5" @click="getData">
+
+              <v-col cols="12" class="ma-0 pa-1">
+                <v-btn width="100%" color="primary" elevation="5" @click="getData">
                   Показать
                 </v-btn>
               </v-col>
@@ -40,14 +34,11 @@
 </template>
 
 <script>
-import Datepicker from "vuejs-datepicker";
 import companyes from "@/assets/company.json";
 
 export default {
   data() {
     return {
-      startDate: new Date(2020, 9, 1),
-      endDate: new Date(),
       name: "",
       companyes: companyes,
       loading: false,
@@ -55,10 +46,6 @@ export default {
       search: null,
       select: null,
     };
-  },
-
-  components: {
-    Datepicker,
   },
   watch: {
     search(val) {
@@ -76,7 +63,7 @@ export default {
     formatDate(date) {
       let year = date.getFullYear();
       let month = Number(date.getMonth()) + 1;
-      let day = Number(date.getDate()) + 1;
+      let day = Number(date.getDate());
 
       if (String(month).length == 1) {
         month = "0" + String(month);
@@ -94,10 +81,15 @@ export default {
             return company;
           }
         });
+
+        let start = new Date();
+        let end = new Date();
+        start.setDate(end.getDate() - 10);
+
         let temp = {
           company: company,
-          start: this.formatDate(this.startDate),
-          end: this.formatDate(this.endDate),
+          start: this.formatDate(start),
+          end: this.formatDate(end),
         };
 
         this.$emit("setSearch", temp);
