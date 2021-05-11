@@ -4,23 +4,8 @@
       <v-col> <search @setSearch="setSearch" /></v-col>
     </v-row>
     <v-row v-if="name" align="center">
-      <v-col cols="4" align="center">
-        <dashboard
-          v-if="PREDICT"
-          :predict="PREDICT"
-          :data="DATA[DATA.length - 1]"
-          :name="name"
-          :abbr="abbr"
-        />
-        <dashboard-wait v-else />
-      </v-col>
-      <v-col cols="8">
-        <timeseres :name="name" :abbr="abbr" :data="chartData()" />
-      </v-col>
-    </v-row>
-    <v-row v-if="name">
-      <v-col>
-        <candlestick :name="name" :abbr="abbr" :data="stickData()" />
+      <v-col v-if="PREDICT">
+        <timeseres :name="name" :abbr="abbr" :data="PREDICT" />
       </v-col>
     </v-row>
     <v-row v-else>
@@ -34,10 +19,7 @@
 <script>
 import { mapGetters } from "vuex";
 import Search from "@/components/Search.vue";
-import Dashboard from "@/components/Dashboard.vue";
-import DashboardWait from "@/components/DashboardWait.vue";
 import Timeseres from "@/components/Timeseres.vue";
-import Candlestick from "../components/Candlestick.vue";
 
 export default {
   data() {
@@ -49,38 +31,11 @@ export default {
   components: {
     Timeseres,
     Search,
-    Candlestick,
-    Dashboard,
-    DashboardWait,
   },
   computed: {
-    ...mapGetters(["DATA"]),
     ...mapGetters(["PREDICT"]),
   },
   methods: {
-    stickData() {
-      let temp = this.DATA.map(function (element) {
-        return {
-          x: element["Date"],
-          y: [
-            element["Open"],
-            element["High"],
-            element["Low"],
-            element["Close"],
-          ],
-        };
-      });
-      return temp;
-    },
-    chartData() {
-      let temp = this.DATA.map(function (element) {
-        return {
-          date: element["Date"],
-          stock: element["Adj Close"],
-        };
-      });
-      return temp;
-    },
     setSearch(options) {
       this.name = options.company.name;
       this.abbr = options.company.abbr;

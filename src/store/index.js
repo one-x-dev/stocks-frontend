@@ -7,7 +7,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     data: [],
-    predict: null
+    predict: []
   },
   getters: {
     DATA: state => {
@@ -36,7 +36,7 @@ export default new Vuex.Store({
       let params = "?name=" + payload.name + "&start=" + payload.start + "&end=" + payload.end;
       axios.get("http://127.0.0.1:5000/predict" + params).then((response) => {
         console.log(response.data)
-        context.commit('SET_PREDICT', (response.data))
+        context.commit('SET_PREDICT', response.data);
       });
     },
   },

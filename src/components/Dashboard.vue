@@ -1,77 +1,115 @@
 <template>
   <v-card elevation="4">
-    <v-card-title> Прогноз </v-card-title>
-    <v-card-text v-if="predict">
-      <v-row>
-        <v-col align="center">
-          <h1 v-if="upper" class="up">
-            <v-icon color="rgb(28, 211, 28)" size="48"> mdi-arrow-up </v-icon>
-            {{ Number(predict.predict).toFixed(2) }}$
-          </h1>
-          <h1 v-else class="down">
-            <v-icon color="rgb(250, 0, 0)" size="48"> mdi-arrow-down </v-icon>
-            {{ Number(predict.predict).toFixed(2) }}$
-          </h1>
-
-          <h2 class="ma-2">
-            <span v-if="upper" class="up">
-              +{{ Number(difference).toFixed(2) }}$ ({{
-                Number(percentum).toFixed(2)
-              }}%)
-            </span>
-            <span v-else class="down">
-              {{ Number(difference).toFixed(2) }}$ ({{
-                Number(percentum).toFixed(2)
-              }}%)
-            </span>
-          </h2>
-        </v-col>
-      </v-row>
-    </v-card-text>
-    <v-card-text v-else>
-      <v-row>
-        <v-col align="center">
-          <v-progress-circular
-            :size="70"
-            indeterminate
-            color="primary"
-          ></v-progress-circular>
-        </v-col>
-      </v-row>
+    <v-card-text>
+      {{series}}
+      <apexchart
+        v-if="predict.length > 0"
+        :key="'x' + key"
+        height="350"
+        :options="chartOptions"
+        :series="series"
+      />
+      <v-container v-else>
+        <v-row>
+          <v-col align="center">
+            <v-progress-circular
+              :size="70"
+              indeterminate
+              color="primary"
+            ></v-progress-circular>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-card-text>
   </v-card>
 </template>
 
 <script>
+import VueApexCharts from "vue-apexcharts";
 export default {
-  props: ["predict", "data", "name", "abbr"],
+  props: ["predict", "name", "abbr"],
   data() {
     return {
-      upper: null,
-      difference: null,
-      percentum: null,
+      key: 0,
+      series: [
+        {
+          name: "",
+          data: [],
+        },
+      ],
+      chartOptions: {
+        chart: {
+          height: 350,
+          type: "line",
+          zoom: {
+            enabled: false,
+          },
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        stroke: {
+          curve: "straight",
+        },
+        title: {
+          text: "Цена акции ",
+          align: "left",
+        },
+        grid: {
+          xaxis: {
+            lines: {
+              show: true,
+            },
+          },
+          yaxis: {
+            lines: {
+              show: true,
+            },
+          },
+        },
+        xaxis: {
+          categories: [],
+          labels: {
+            rotate: -45,
+            rotateAlways: true,
+          },
+        },
+        yaxis: {
+          labels: {
+            formatter: (value) => {
+              return parseInt(value);
+            },
+          },
+        },
+      },
     };
   },
-  mounted() {
-    if (this.predict.predict) {
-      if (this.predict.predict >= this.data["Adj Close"]) {
-        this.upper = true;
-      } else {
-        this.upper = false;
-      }
-
-      this.difference = this.predict.predict - this.data["Adj Close"];
-      this.percentum = this.difference / (this.predict.predict / 100);
-    }
+  components: {
+    apexchart: VueApexCharts,
+  },
+  watch: {
+    predict() {
+      this.series[0].data = this.getStocks();
+      this.series[0].name = this.abbr;
+      this.chartOptions.xaxis.categories = this.getDates();
+      this.chartOptions.title.text = "Цена акции " + this.name;
+      this.key += 1;
+      console.log(new Date())
+    },
+  },
+  methods: {
+    getStocks() {
+      let temp = this.predict.map((element) => {
+        return element["predict"];
+      });
+      return temp;
+    },
+    getDates() {
+      let temp = this.predict.map((element) => {
+        return element["date"];
+      });
+      return temp;
+    },
   },
 };
 </script>
-
-<style scoped>
-.up {
-  color: rgb(28, 211, 28);
-}
-.down {
-  color: rgb(250, 0, 0);
-}
-</style>

@@ -86,6 +86,16 @@ export default {
   components: {
     apexchart: VueApexCharts,
   },
+  mounted() {
+    if (this.data) {
+      this.series[0].data = this.getStocks();
+      this.series[0].name = this.abbr;
+      this.chartOptions.xaxis.categories = this.getDates();
+      this.chartOptions.title.text = "Цена акции " + this.name;
+      this.key += 1;
+      console.log("data new");
+    }
+  },
   watch: {
     data() {
       this.series[0].data = this.getStocks();
@@ -93,19 +103,20 @@ export default {
       this.chartOptions.xaxis.categories = this.getDates();
       this.chartOptions.title.text = "Цена акции " + this.name;
       this.key += 1;
+      console.log("data new");
     },
   },
   methods: {
     getStocks() {
       let temp = this.data.map((element) => {
-        return element["stock"];
+        console.log(element);
+        return element["predict"];
       });
       return temp;
     },
     getDates() {
       let temp = this.data.map((element) => {
-        let date = element["date"].split(" ");
-        return date[1] + " " + date[2] + " " + date[3];
+        return element["date"];
       });
       return temp;
     },
